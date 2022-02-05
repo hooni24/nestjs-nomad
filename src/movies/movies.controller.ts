@@ -1,11 +1,17 @@
 import { Body, Controller, Delete, Get, Param, Patch, Post, Query } from '@nestjs/common';
+import { CreateMovieDto } from './dto/create-movie.dto';
+import { UpdateMovieDto } from './dto/update-movie.dto';
+import { Movie } from './entities/movie.entity';
+import { MoviesService } from './movies.service';
 
 @Controller('movies')
 export class MoviesController {
 
+  constructor(private readonly moviesService: MoviesService) { }
+
   @Get()
-  getAll() {
-    return 'this will return all movies';
+  getAll(): Movie[] {
+    return this.moviesService.getAll();
   }
 
   @Get('search')
@@ -17,35 +23,31 @@ export class MoviesController {
 
   @Get('/:id')
   getOne(
-    @Param('id') movieId: string
-  ) {
-    return `this will return one movie id : ${movieId}`;
+    @Param('id') movieId: number
+  ): Movie {
+    return this.moviesService.getOne(movieId);
   }
 
   @Post()
   create(
-    @Body() movieData
+    @Body() movieData: CreateMovieDto
   ) {
-    console.log(movieData);
-    return movieData;
+    return this.moviesService.create(movieData);
   }
 
   @Delete(':id')
   remove(
-    @Param('id') movieId: string
+    @Param('id') movieId: number
   ) {
-    return `This will delete a movie with id : ${movieId}`;
+    this.moviesService.deleteOne(movieId);
   }
 
   @Patch('/:id')
   patch(
-    @Param('id') movieId: string,
-    @Body() updateData
+    @Param('id') movieId: number,
+    @Body() updateData: UpdateMovieDto
   ) {
-    return {
-      updatedMovie: movieId,
-      ...updateData
-    }
+    return this.moviesService.update(movieId, updateData);
   }
 
 }
